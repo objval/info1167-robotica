@@ -1,6 +1,6 @@
 # INFO1167 — Robotica (UCT)
 
-Los 3 laboratorios del curso de Robotica, semestre 2025.
+Los 3 laboratorios del curso de Robotica, semestre 1 2026.
 
 ## Estructura
 
