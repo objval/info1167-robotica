@@ -1,0 +1,54 @@
+Lab #1 INFO1167 - Robótica
+By Alberto Caro
+1.- En este proyecto veremos un tema muy interesante que tiene que ver con la simulación de robots
+AGV (Vehículos Guiados Autónomos) que utiliza la empresa www.Amazon.com. La sección de ventas,
+utiliza los AGV para entregar a los operarios todos los productos que necesitan despechar. Los AGV se
+mueven por bodega utilizando un plano virtual que mapea las coordenadas del robot mediante códigos
+QR.
+Es decir, la bodega se piensa como un arreglo de 2D, donde cada celda es un nodo (QR). Así, cuando el
+robot pasa por encima de un código QR, mediante una cámara de video que tiene en su base, puede
+saber donde se encuentra en ese momento dentro del Mapa 2D. En este trabajo, usted deberá
+programar una simulación de 4 Robots AGV que navegan por el mapa moviendo un carrito de
+productos de manera inteligente. La idea general de este proyecto se puede ver en la Figura 1. Sea
+creativo y utilice todos los recursos que estime necesario.
+
+Figura 1
+
+Reglas de la Simulación
+•
+•
+•
+•
+•
+•
+•
+•
+•
+
+Todos los robots se mueven de manera aleatoria desde su nodo actual al nodo final.
+Al inicio todos los robots están en sus bases y deben buscar el carrito que se les asignó de
+mamera aleatoria.
+El carrito asignado debe cambiar a un color que sea el mismo color del robot asociado. Cada
+robot tiene un color único.
+La ruta a seguir por los robots está dada por Algoritmos de Grafos.
+Visitar e investigar en → https://www.python.org/doc/essays/graphs/
+Cuando los robots alcanzan los carritos van al nodo de destino llevando los carritos con ellos.
+Los robots realizan las rotaciones en pasos de 1G° según la ruta dada por los grafos.
+Cuando los robots llegan a su destino, liberan el carrito en ese nodo y vuelven a su base a cargar
+baterías. El color del carrito vuelve a su color original.
+Cuando cargan las baterías al 100%, el ciclo vuelve a comenzar.
+
+Observaciones
+•
+•
+•
+
+Fecha de Entrega y Defensa: Lunes 4 de Mayo en horario de clases oficina del profesor.
+Trabajo grupo de 2 personas o individual.
+Temas relacionados: Python, Visual Python, Geometría, Algoritmos de Grafos con búsqueda
+en profundidad, ruta más corta, todas las rutas, al menos una ruta.
+
+Facultdad de Ingeniería – Ingeniería Civil Informática – Universidad Católica de Temuco
+Alberto Caro - LCARO@UCT.CL
+
+

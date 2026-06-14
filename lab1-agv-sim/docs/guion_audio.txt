@@ -1,0 +1,79 @@
+INFO1167 Robotica. Laboratorio Numero 1. Guia de defensa.
+
+Hola. Este audio es una guia completa para la defensa del laboratorio numero uno de Robotica. Escuchalo varias veces para familiarizarte con los conceptos.
+
+Primero, el contexto. El proyecto simula robots AGV, o Vehiculos Guiados Automaticamente, como los que usa Amazon en sus bodegas. Los AGV se mueven por un mapa bidimensional donde cada celda representa un codigo QR en el piso. Cuando el robot pasa sobre un QR, una camara en su base lee el codigo y sabe exactamente en que coordenada X coma Y se encuentra.
+
+El mapa es una grilla de 10 por 8 celdas. Hay cuatro robots, cada uno con un color unico: rojo, azul, verde y naranja. Los robots empiezan en las cuatro esquinas de la bodega. Hay tambien carritos de productos distribuidos aleatoriamente. La mision de cada robot es: recibir un carrito asignado, ir a buscarlo, llevarlo a su destino, entregarlo, volver a la base, cargar baterias al cien por ciento, y repetir el ciclo.
+
+Ahora, los algoritmos de grafos. Este es el corazon del proyecto. La bodega se modela como un grafo donde cada celda es un nodo, representado como una tupla X coma Y. Dos nodos vecinos, es decir, que estan uno al lado del otro horizontal o verticalmente, estan conectados por una arista con peso uno. No hay diagonales porque los robots solo se mueven en cruz.
+
+Implementamos cuatro algoritmos de grafos.
+
+Primero, BFS, Busqueda en Anchura. Imagina que tiras una piedra al agua y las ondas se expanden en circulos. BFS visita todos los nodos a distancia uno del origen, luego todos los de distancia dos, y asi sucesivamente. Usa una cola, primero en entrar, primero en salir. BFS encuentra la ruta con la menor cantidad de pasos cuando todas las aristas pesan lo mismo.
+
+Segundo, DFS, Busqueda en Profundidad. Es como caminar por un laberinto siguiendo siempre la pared derecha. DFS explora tan profundo como puede por un camino antes de retroceder. Usa una pila, ultimo en entrar, primero en salir. DFS no garantiza la ruta mas corta, pero sirve para explorar todas las posibilidades.
+
+Tercero, Dijkstra. Este algoritmo encuentra la ruta de menor costo total desde un origen hasta todos los demas nodos. Usa una cola de prioridad llamada min-heap, donde siempre se expande el camino mas prometedor primero. En nuestro caso todas las aristas pesan uno, asi que Dijkstra y BFS dan el mismo resultado en longitud, pero Dijkstra es mas general porque funciona con pesos diferentes.
+
+Cuarto, Random Shortest, o ruta corta aleatoria. Este es nuestro algoritmo estrella. Si los cuatro robots usaran Dijkstra puro, todos tomarian el mismo camino y se amontonarian. Random Shortest elige aleatoriamente entre todos los vecinos que mantienen la propiedad de ruta optima. Matematicamente, un vecino es valido si la distancia desde el origen hasta el nodo actual, mas el peso de la arista, mas la distancia desde el vecino hasta el destino, es igual a la distancia total. Esto garantiza que el camino sigue siendo optimo, pero cada robot puede tomar una ruta diferente.
+
+Ahora, la geometria. Los robots no se mueven instantaneamente. Primero deben rotar hacia la direccion deseada. Para calcular esa direccion usamos la funcion atan2 de dy coma dx. atan2 devuelve el angulo en radianes entre el eje X positivo y el vector hacia el siguiente nodo. Usamos atan2 y no atan simple porque atan2 distingue cuadrantes. Por ejemplo, atan2 de uno coma menos uno da ciento treinta y cinco grados, segundo cuadrante, mientras que atan de uno sobre menos uno da menos cuarenta y cinco grados, cuarto cuadrante. Con atan2 el robot siempre sabe hacia que direccion girar.
+
+El laboratorio pide rotaciones en pasos de diez grados. Entonces, si el robot necesita girar treinta y cinco grados, en el primer tick gira diez grados y no avanza. En el segundo tick otros diez grados y no avanza. En el tercer tick otros diez grados y no avanza. En el cuarto tick solo le faltan cinco grados, que es menor o igual a diez, asi que alinea exactamente y avanza al siguiente nodo. Tambien consume bateria al moverse.
+
+Los angulos se normalizan al rango menos ciento ochenta a ciento ochenta grados. Si un angulo pasa de ciento ochenta, le restamos trescientos sesenta. Si baja de menos ciento ochenta, le sumamos trescientos sesenta. Asi la diferencia entre dos angulos siempre es el giro mas corto.
+
+La simulacion funciona como una maquina de estados. Cada robot tiene cinco estados que forman un ciclo cerrado.
+
+Estado uno: En Base. El robot espera que se le asigne un carrito. Solo los robots en base o completamente cargados pueden recibir misiones.
+
+Estado dos: Buscando Carrito. El robot calcula la ruta desde su posicion actual hasta el carrito asignado y se mueve paso a paso. Cuando llega al mismo nodo que el carrito, cambia de estado.
+
+Estado tres: Llevando Carrito. El robot recoge el carrito, que cambia de color gris al color del robot. Calcula una nueva ruta desde su posicion actual hasta el destino del carrito. En cada tick, la posicion del carrito se iguala a la del robot, asi que visualmente el carrito sigue al robot. Cuando llega al destino, entrega el carrito.
+
+Estado cuatro: Volviendo a Base. El robot suelta el carrito, que vuelve a color gris y se reposiciona aleatoriamente en otra celda libre con un nuevo destino aleatorio. El robot calcula la ruta de vuelta a su base.
+
+Estado cinco: Cargando. El robot esta en su base recuperando bateria. Gana cinco por ciento de bateria por tick hasta llegar al cien por ciento. Solo entonces vuelve al estado En Base y puede recibir una nueva mision.
+
+La asignacion de carritos es aleatoria. Al inicio de cada tick, la simulacion recopila los carritos sin asignar, los mezcla con un generador de numeros aleatorios usando una semilla fija, y recorre los robots libres. El primer robot libre recibe el primer carrito de la lista mezclada. La semilla garantiza que la simulacion sea determinista: si corres dos veces con semilla cuarenta y dos, obtienes exactamente el mismo resultado.
+
+Sobre la visualizacion, tenemos tres formas.
+
+Primero, una imagen estatica con Matplotlib que guarda un PNG con la disposicion final de robots y carritos.
+
+Segundo, una animacion tres D con Visual Python. Abre una ventana del navegador con cilindros de colores para los robots, cajas para los carritos, anillos para los destinos, y una grilla tres D interactiva donde puedes rotar la camara con el mouse.
+
+Tercero, una animacion dos D con Tkinter. Como Visual Python a veces falla en Windows abriendo pestanas en blanco por un bug de WebGL, creamos una interfaz Tkinter con sprites propios generados programaticamente con Pillow. El robot tiene ruedas, cuerpo redondeado, cabeza con ojos que miran hacia la direccion de avance, antena con luz roja, y una sonrisa. El carrito es una caja con ruedas. La base es una plataforma con un rayo de carga. El destino es una bandera en un palo. Los sprites se generan en memoria, no necesitamos archivos externos.
+
+Sobre los tests, tenemos once tests automaticos con pytest que verifican: que Dijkstra devuelve una ruta valida, que BFS y DFS llegan al destino, que la ruta aleatoria es optima pero varia entre ejecuciones, que la simulacion completa al menos una entrega, que los estados de los robots siempre son validos, que las baterias nunca salen del rango cero a cien, que los carritos cambian de color al ser asignados, y que el resumen incluye evidencia de todos los algoritmos de grafos.
+
+Tambien tenemos un verificador de requisitos que revisa los ocho requisitos del laboratorio y calcula un porcentaje de aprobacion. Siempre da cien por ciento.
+
+Ahora, preguntas frecuentes que podria hacer el profesor y como responderlas.
+
+Pregunta: Por que usaste NetworkX en vez de implementar los grafos desde cero? Respuesta: NetworkX es robusta, probada y optimizada. Implementar grafos desde cero seria posible pero tomaria mucho mas tiempo y seria mas propenso a errores. El foco del laboratorio es demostrar comprension de los algoritmos, no reinventar estructuras de datos basicas.
+
+Pregunta: Que pasa si dos robots llegan al mismo nodo al mismo tiempo? Respuesta: En la version actual no hay deteccion de colisiones. Los robots pueden ocupar el mismo nodo sin problema. Una mejora futura seria agregar un sistema de reserva de nodos.
+
+Pregunta: Como escalarias esto a cien robots? Respuesta: Necesitariamos cachear rutas precomputadas, un sistema de colisiones, asignacion inteligente de carritos por proximidad en vez de aleatoria, y posiblemente paralelizar la simulacion.
+
+Pregunta: Que es un min-heap y por que lo usa Dijkstra? Respuesta: Un min-heap es una estructura de datos en forma de arbol donde el elemento mas pequeno siempre esta en la raiz. Las operaciones de insertar y extraer el minimo son logaritmicas. Dijkstra lo usa para siempre expandir el camino con menor costo acumulado primero, garantizando optimalidad.
+
+Pregunta: Podrias implementar BFS sin deque? Respuesta: Si, conceptualmente funciona igual con una lista normal como cola. Pero deque esta optimizada para popleft en tiempo constante, mientras que pop cero en una lista normal es lineal. Usar una lista normal haria BFS mucho mas lento.
+
+Pregunta: Por que la ruta aleatoria siempre es optima? Respuesta: Por construccion. Solo elegimos vecinos que satisfacen la condicion matematica de pertenecer a algun camino de longitud minima. Como siempre avanzamos por vecinos validos y el grafo es finito, eventualmente llegamos al destino.
+
+Pregunta: Que son los dataclass? Respuesta: Son una forma de Python de crear clases que solo almacenan datos. Python genera automaticamente el constructor, el metodo para imprimir, y otros metodos utiles. Nos ahorra escribir codigo repetitivo.
+
+Pregunta: Para que sirve la semilla? Respuesta: La semilla hace que los numeros aleatorios sean deterministas. Si corres dos veces con la misma semilla, obtienes exactamente el mismo resultado. Es fundamental para depurar y para la defensa.
+
+Pregunta: Como demuestras que hay al menos una ruta? Respuesta: Usamos la funcion all simple paths de NetworkX que enumera todos los caminos sin ciclos entre dos nodos. Si devuelve al menos un camino, demostramos que existe al menos una ruta.
+
+Pregunta: Y si no hay ruta entre dos nodos? Respuesta: Como el grafo es una grilla conexa completa, siempre hay ruta entre cualquier par de nodos. En una version real con obstaculos, habria que verificar conectividad antes de asignar posiciones.
+
+Pregunta: Por que usaste Tkinter ademas de VPython? Respuesta: VPython siete punto seis tiene un bug conocido en Windows que a veces abre pestanas del navegador en blanco por problemas de WebGL. Tkinter es la libreria de interfaces graficas incluida en Python y funciona siempre. Los sprites propios hacen la animacion visualmente atractiva y entendible.
+
+Pregunta: Los sprites son imagenes descargadas? Respuesta: No. Son imagenes generadas programaticamente con Pillow, la libreria de procesamiento de imagenes de Python. Cada sprite se dibuja con circulos, rectangulos, lineas y poligonos. Esto hace que el proyecto sea cien por ciento autocontenido.
+
+Eso es todo. Escucha este audio varias veces antes de la defensa. No memorices las respuestas palabra por palabra, pero asegurate de entender cada concepto. Si el profesor te pregunta algo que no esta aqui, responde con honestidad. Si no lo tienes implementado, di: en la version actual no lo tenemos, pero la arquitectura modular lo permite agregar facilmente porque los modulos estan separados. Buena suerte en la defensa.

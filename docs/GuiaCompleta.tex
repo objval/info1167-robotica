@@ -1,0 +1,673 @@
+\documentclass[11pt,a4paper]{article}
+
+% ---- idioma y encoding ----
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+
+% ---- margenes y layout ----
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ---- colores ----
+\usepackage[dvipsnames]{xcolor}
+\definecolor{codebg}{HTML}{F5F5FA}
+\definecolor{codeframe}{HTML}{CCCCCC}
+\definecolor{accentblue}{HTML}{3B82F6}
+\definecolor{darktext}{HTML}{1E1E1E}
+\definecolor{graytext}{HTML}{666666}
+\definecolor{tabheader}{HTML}{E8EDF5}
+\definecolor{lightgreen}{HTML}{D4EDDA}
+\definecolor{lightyellow}{HTML}{FFF3CD}
+
+% ---- listings para codigo ----
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    showstringspaces=false,
+    keywordstyle=\color{accentblue}\bfseries,
+    commentstyle=\color{graytext}\itshape,
+    stringstyle=\color{OliveGreen},
+    numbers=none,
+    xleftmargin=8pt,
+    xrightmargin=8pt,
+    aboveskip=6pt,
+    belowskip=6pt,
+    framexleftmargin=4pt,
+    framextopmargin=3pt,
+    framexbottommargin=3pt,
+    lineskip=-1pt,
+    columns=fullflexible,
+}
+
+% ---- tablas ----
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+
+% ---- headers/footers ----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{graytext}{Guia Completa — INFO1167 Robotica}}
+\fancyhead[R]{\small\textcolor{graytext}{Proyectos 2 y 3}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---- hipervinculos ----
+\usepackage[colorlinks=true,linkcolor=accentblue,urlcolor=accentblue]{hyperref}
+
+% ---- boxes ----
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{importante}{
+    colback=lightyellow,
+    colframe=OliveGreen,
+    fonttitle=\bfseries,
+    title=Punto Clave,
+    breakable,
+    boxrule=0.8pt,
+    arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+}
+
+\newtcolorbox{definicion}[1][]{
+    colback=blue!5,
+    colframe=accentblue,
+    fonttitle=\bfseries,
+    title={#1},
+    breakable,
+    boxrule=0.8pt,
+    arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+}
+
+\newtcolorbox{pregunta}[1][]{
+    colback=green!5,
+    colframe=OliveGreen,
+    fonttitle=\bfseries,
+    title={#1},
+    breakable,
+    boxrule=0.8pt,
+    arc=3pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt
+}
+
+% ---- comandos utiles ----
+\newcommand{\codigo}[1]{\texttt{\small #1}}
+\newcommand{\vocab}[1]{\textbf{\textcolor{accentblue}{#1}}}
+
+% ====================================================================
+\begin{document}
+
+% ---- PORTADA ----
+\begin{titlepage}
+\centering
+\vspace*{3cm}
+{\Huge\bfseries\textcolor{darktext}{Guia Completa}\par}
+\vspace{0.8cm}
+{\LARGE\textcolor{graytext}{Proyectos 2 y 3 de Robotica}\par}
+\vspace{0.5cm}
+{\Large\textcolor{graytext}{INFO1167 — Alberto Caro}\par}
+\vspace{2cm}
+{\large\textcolor{graytext}{Todo lo que necesitas saber para defender en 2 dias}\par}
+\vspace{0.3cm}
+{\large\textcolor{graytext}{Explicado como si no supieras nada}\par}
+\vfill
+{\large\today\par}
+\end{titlepage}
+
+% ---- TABLA DE CONTENIDOS ----
+\tableofcontents
+\newpage
+
+% ====================================================================
+\section{Conceptos Basicos}
+% ====================================================================
+
+\subsection{Que es una grilla?}
+
+Imagina un tablero de ajedrez pero mas chico: \textbf{6 filas por 7 columnas}. Cada casilla puede ser:
+
+\begin{itemize}
+    \item \textbf{Libre (S)} — el robot puede caminar ahi
+    \item \textbf{Muro (X)} — obstaculo, no puede pasar
+    \item \textbf{Meta (M)} — el objetivo, donde tiene que llegar
+    \item \textbf{Vacio (.)} — no existe, no es parte del mapa
+\end{itemize}
+
+Nuestro mapa se ve asi:
+
+\begin{lstlisting}
+      0  1  2  3  4  5  6
+  0   .  S  S  S  S  .  .
+  1   .  S  .  .  S  .  .
+  2   S  S  S  X  S  S  S
+  3   .  .  S  .  S  .  .
+  4   .  .  S  S  S  .  .
+  5   .  .  .  M  .  .  .
+\end{lstlisting}
+
+El robot empieza en una posicion \textbf{random} de las casillas \codigo{S} y tiene que llegar a \codigo{M}. Hay 18 estados transitables y 1 muro.
+
+\subsection{Conceptos clave}
+
+\begin{definicion}[Estado]
+Un \vocab{estado} es simplemente ``donde esta el robot ahora''. Si esta en fila 2, columna 1, su estado es \codigo{(2, 1)}. Cada casilla libre es un estado posible.
+\end{definicion}
+
+\begin{definicion}[Accion]
+Una \vocab{accion} es un movimiento: Norte, Sur, Este u Oeste. El robot elige una accion en cada estado.
+\end{definicion}
+
+\begin{definicion}[Politica]
+La \vocab{politica} es la lista de ``si estoy aca, voy para alla''. Para cada casilla, dice cual es el mejor movimiento. Como un GPS que siempre te dice para donde doblar.
+\end{definicion}
+
+\begin{definicion}[Algoritmo]
+Un \vocab{algoritmo} es una receta paso a paso. ``Primero hace esto, despues hace esto otro, y si pasa esto, hace esto otro.''
+\end{definicion}
+
+\newpage
+
+% ====================================================================
+\section{Proyecto 2 — MDP y SMDP}
+% ====================================================================
+
+\subsection{Que es un MDP?}
+
+\textbf{MDP} = \textit{Markov Decision Process} (Proceso de Decision de Markov).
+
+Imagina que estas en un laberinto oscuro. No puedes ver nada, pero tienes un mapa mental. Cada vez que das un paso:
+
+\begin{itemize}
+    \item Pierdes \textbf{1 punto} (costo de caminar)
+    \item Si llegas a la salida, ganas \textbf{10 puntos}
+    \item A veces resbalas y no te mueves (\textbf{10\%} de las veces)
+\end{itemize}
+
+El MDP te dice: ``desde cada casilla, ¿para donde debo ir para ganar la mayor cantidad de puntos?''
+
+\subsubsection{Los 5 ingredientes del MDP}
+
+\begin{center}
+\begin{tabular}{>{\bfseries}l l l}
+\toprule
+\rowcolor{tabheader}
+Ingrediente & Significado & En nuestro juego \\
+\midrule
+S (Estados) & Todos los lugares posibles & Las 18 casillas libres \\
+A (Acciones) & Lo que puede hacer & Norte, Sur, Este, Oeste \\
+P(s'$|$s,a) & Probabilidad de transicion & 90\% exito, 10\% falla \\
+R(s,a) & Recompensa & $-1$ por paso, $+10$ en meta \\
+$\gamma$ & Factor de descuento & 0.97 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{La ecuacion de Bellman}
+
+Esta es la ecuacion \textbf{mas importante} del MDP:
+
+\begin{equation}
+V(s) = \max_a \left[ R(s,a) + \gamma \sum_{s'} P(s'|s,a) \cdot V(s') \right]
+\end{equation}
+
+Desglose termino por termino:
+
+\begin{importante}
+\begin{itemize}
+    \item $V(s)$ = ``que tan bueno es estar en esta casilla''
+    \item $\max_a$ = ``elijo la mejor accion de todas''
+    \item $R(s,a)$ = ``lo que gano/pierdo ahora'' ($-1$ por caminar)
+    \item $\gamma = 0.97$ = ``cuanto me importa el futuro''
+    \item $V(s')$ = ``que tan bueno es el lugar donde voy a llegar''
+\end{itemize}
+\end{importante}
+
+La ecuacion dice: \textbf{``el valor de donde estoy = lo que gano ahora + lo que espero ganar en el futuro, eligiendo la mejor accion''}
+
+\subsection{Factor de descuento $\gamma = 0.97$}
+
+¿Por que 0.97 y no 1.0? Porque si $\gamma = 1.0$, el robot valdria igual una recompensa hoy que en 1000 pasos. Con $\gamma = 0.97$:
+
+\begin{center}
+\begin{tabular}{l l}
+\toprule
+\rowcolor{tabheader}
+Momento & Valor \\
+\midrule
+Ahora & $1.0$ \\
+En 1 paso & $0.97$ \\
+En 2 pasos & $0.97^2 = 0.94$ \\
+En 10 pasos & $0.97^{10} = 0.74$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+El robot prefiere recompensas cercanas pero no ignora las lejanas.
+
+\subsection{Probabilidad de exito (90\%)}
+
+Cuando el robot decide ir al Sur:
+\begin{itemize}
+    \item \textbf{90\%} de las veces: se mueve al Sur correctamente
+    \item \textbf{10\%} de las veces: se queda donde esta (fallo)
+\end{itemize}
+
+\begin{lstlisting}[language=Python]
+valor = 0.9 * (recompensa + gamma * V[siguiente])   # exito
+      + 0.1 * (recompensa + gamma * V[mismo_lugar])  # fallo
+\end{lstlisting}
+
+\newpage
+\subsection{El codigo del MDP}
+
+La funcion clave del proyecto 2:
+
+\begin{lstlisting}[language=Python]
+def calcular_politica(gamma, modo='MDP'):
+    V = {s: 0.0 for s in estados}   # todos empiezan en 0
+    for _ in range(500):             # iterar hasta converger
+        for s in estados:
+            if s == meta:
+                V[meta] = 10.0       # la meta vale 10
+                continue
+            mejor = float('-inf')
+            for acc in ACTIONS:       # probar las 4 direcciones
+                sig = move(s, acc)    # donde llegaria
+                r = -1.0 + (10.0 if sig == meta else 0.0)
+
+                # AQUI esta la diferencia MDP vs SMDP
+                if modo == 'SMDP':
+                    desc = promedio(gamma ** tau)   # temporal
+                else:
+                    desc = gamma                    # fijo
+
+                val = 0.9*(r + desc*V[sig]) + 0.1*(r + desc*V[s])
+                mejor = max(mejor, val)
+            V[s] = mejor
+
+    # extraer politica: mejor accion para cada estado
+    for s in estados:
+        politica[s] = accion_con_mayor_valor
+\end{lstlisting}
+
+Paso a paso:
+\begin{enumerate}
+    \item Empezamos con $V(s) = 0$ para todas las casillas
+    \item Para cada casilla, probamos las 4 acciones
+    \item Para cada accion, calculamos cuanto vale usando Bellman
+    \item Nos quedamos con la mejor accion
+    \item Repetimos hasta que los valores se estabilicen (convergencia)
+    \item Al final, la politica es: para cada casilla, la accion con mayor valor
+\end{enumerate}
+
+\newpage
+
+\subsection{Que es un SMDP?}
+
+\textbf{SMDP} = \textit{Semi-Markov Decision Process}.
+
+La unica diferencia con el MDP es que las acciones toman \textbf{tiempo variable}:
+
+\begin{center}
+\begin{tabular}{l l}
+\toprule
+\rowcolor{tabheader}
+Accion & Tiempo \\
+\midrule
+Norte & Normal($\mu=2, \sigma=0.2$) \\
+Sur & Normal($\mu=2, \sigma=0.2$) \\
+Este & Normal($\mu=3, \sigma=0.3$) \\
+Oeste & Normal($\mu=3, \sigma=0.3$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Por que importa el tiempo?}
+
+Porque el factor de descuento penaliza el tiempo. Si una accion toma mas tiempo:
+
+\begin{lstlisting}
+gamma^tau = 0.97^3 = 0.91   (accion lenta, descuenta mucho)
+gamma^tau = 0.97^2 = 0.94   (accion rapida, descuenta poco)
+\end{lstlisting}
+
+\begin{importante}
+El SMDP prefiere acciones rapidas cuando ambas llevan a buen lugar. Norte/Sur son mas rapidos (2s) que Este/Oeste (3s), entonces si ambas opciones llegan a la meta, el SMDP prefiere Norte/Sur.
+\end{importante}
+
+\subsubsection{Diferencia en el codigo}
+
+\begin{lstlisting}[language=Python]
+# MDP: descuento fijo
+desc = gamma                    # siempre 0.97
+
+# SMDP: descuento variable por tiempo
+mu, sigma = TIEMPO_ACCION[accion]   # ej: Norte = (2, 0.2)
+tau = muestra_de_Normal(mu, sigma)  # ej: 1.87 segundos
+desc = gamma ** tau                  # 0.97^1.87 = 0.944
+\end{lstlisting}
+
+\newpage
+
+% ====================================================================
+\section{Proyecto 3 — Q-Learning SMDP}
+% ====================================================================
+
+\subsection{Que es Q-Learning?}
+
+\textbf{Q-Learning es aprender por prueba y error.}
+
+Imagina un raton en un laberinto. Al principio no sabe nada — no sabe donde esta el queso, no sabe donde estan los muros. Solo puede probar caminos.
+
+Despues de muchos intentos, empieza a aprender: ``si estoy en esta esquina y voy a la derecha, llego al queso''. Eso es Q-Learning.
+
+\subsection{La tabla Q}
+
+El robot tiene una tabla donde apunta notas:
+
+\begin{lstlisting}
+Q[(2,1), Norte]  = -3.2   (si estoy en (2,1) y voy Norte, fue malo)
+Q[(2,1), Sur]    =  5.1   (si voy Sur, fue bueno!)
+Q[(2,1), Este]   = -1.0   (neutro)
+Q[(2,1), Oeste]  = -2.5   (malo)
+\end{lstlisting}
+
+Al principio \textbf{todos los valores son 0} (no sabe nada). Despues de muchos episodios, los valores se llenan y el robot sabe que hacer.
+
+\subsection{La ecuacion de actualizacion}
+
+\begin{equation}
+Q(s,a) \leftarrow Q(s,a) + \alpha \left[ R + \gamma^\tau \cdot \max_{a'} Q(s',a') - Q(s,a) \right]
+\end{equation}
+
+\begin{definicion}[Desglose]
+\begin{itemize}
+    \item $Q(s,a)$ = mi nota actual para esta accion en este estado
+    \item $\alpha = 0.10$ = cuanto ajusto (10\% = poco a poco)
+    \item $R$ = lo que acaba de pasar ($-1$ o $+10$)
+    \item $\gamma^\tau$ = descuento por tiempo (igual que SMDP)
+    \item $\max Q(s')$ = lo mejor que puedo esperar del siguiente estado
+    \item $Q(s,a)$ viejo = mi nota antes de esta experiencia
+\end{itemize}
+\end{definicion}
+
+La diferencia entre ``lo que esperaba'' y ``lo que paso'' se llama \vocab{error temporal}. Si el error es grande, ajusto mucho. Si es chico, ajusto poco.
+
+\newpage
+\subsection{Epsilon-greedy (explorar vs explotar)}
+
+El robot tiene un dilema:
+
+\begin{itemize}
+    \item \textbf{Explotar}: usar lo que ya sabe (ir por el mejor camino conocido)
+    \item \textbf{Explorar}: probar algo nuevo (ir por un camino random)
+\end{itemize}
+
+\textbf{Epsilon} controla esto:
+
+\begin{lstlisting}[language=Python]
+def elegir(estado, epsilon):
+    if random() < epsilon:          # ej: 30% de las veces
+        return accion_aleatoria     # EXPLORAR: probar algo nuevo
+    else:                           # ej: 70% de las veces
+        return mejor_accion(estado) # EXPLOTAR
+\end{lstlisting}
+
+\begin{importante}
+Al principio epsilon es alto (explorar mucho). Con el tiempo baja (explotar lo aprendido). El slider de epsilon te deja controlar esto en vivo.
+\end{importante}
+
+\subsection{Alpha (tasa de aprendizaje)}
+
+$\alpha = 0.10$ significa que cada actualizacion solo cambia el valor en un 10\%:
+
+\begin{lstlisting}
+Q_viejo   = 5.0
+nueva_info = 7.0
+alpha     = 0.10
+
+Q_nuevo = 5.0 + 0.10 * (7.0 - 5.0) = 5.0 + 0.2 = 5.2
+\end{lstlisting}
+
+Si $\alpha$ fuera 1.0, el nuevo valor seria 7.0 (borraria todo lo anterior). Con 0.10, cambia solo un poquito. Esto hace el aprendizaje \textbf{estable}.
+
+\newpage
+\subsection{El codigo del Q-Learning}
+
+\begin{lstlisting}[language=Python]
+class AgenteQLearning:
+    def __init__(self):
+        self.q = defaultdict(float)   # todo empieza en 0
+
+    def entrenar_episodio(self, gamma, alpha, epsilon):
+        s = get_random_start()        # empezar en random
+
+        for _ in range(200):          # max 200 pasos
+            a = self.elegir(s, epsilon)     # epsilon-greedy
+            sig = self.mover(s, a)          # 90% exito
+            r = -1 + (10 if sig == meta else 0)
+            tau = self.tiempo_accion(a)     # muestrear tiempo
+            desc = gamma ** tau             # descuento SMDP
+
+            viejo = self.q[(s, a)]
+            self.q[(s, a)] = viejo + alpha * (
+                r + desc * self.max_q(sig) - viejo
+            )
+
+            s = sig
+            if s == meta:
+                break
+\end{lstlisting}
+
+Paso a paso:
+\begin{enumerate}
+    \item El robot empieza en una posicion random
+    \item Elige una accion (epsilon-greedy)
+    \item Se mueve (90\% exito, 10\% falla)
+    \item Recibe recompensa ($-1$ por paso, $+10$ si llego a la meta)
+    \item Mide cuanto tiempo tomo la accion
+    \item Actualiza la tabla Q
+    \item Repite hasta llegar a la meta o 200 pasos
+    \item Repite todo desde paso 1 con otro inicio random
+\end{enumerate}
+
+Despues de \~{}1500 episodios, la tabla Q converge y el robot sabe que hacer en cada situacion.
+
+\newpage
+
+% ====================================================================
+\section{Diferencias Clave entre los Proyectos}
+% ====================================================================
+
+\begin{center}
+\begin{tabular}{>{\bfseries}l l l}
+\toprule
+\rowcolor{tabheader}
+Aspecto & Proyecto 2 (MDP/SMDP) & Proyecto 3 (Q-Learning) \\
+\midrule
+Tipo & Basado en modelo & Libre de modelo \\
+Conoce reglas? & SI & NO \\
+Como aprende? & Calcula matematica & Prueba y error \\
+Necesita modelo? & SI (P, R conocidos) & NO (solo experiencia) \\
+Convergencia & Exacta, pocas iter & Aprox, miles episodios \\
+Descuento & $\gamma$ o $\gamma^\tau$ & $\gamma^\tau$ siempre \\
+Resultado & $V(s)$ y politica & Tabla $Q(s,a)$ y politica \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{importante}
+\textbf{Pregunta clave de defensa:} ``¿Cual es la diferencia entre MDP y Q-Learning?'' \\[6pt]
+\textbf{Respuesta:} MDP necesita conocer las reglas del juego (las probabilidades y recompensas). Q-Learning no necesita nada — aprende jugando. Es como la diferencia entre estudiar el mapa antes de caminar vs aprender caminando.
+\end{importante}
+
+\newpage
+
+% ====================================================================
+\section{Cheat Sheet para la Defensa Oral}
+% ====================================================================
+
+\begin{pregunta}[1. Que es un MDP?]
+Un modelo para tomar decisiones secuenciales bajo incertidumbre. 5 componentes: estados, acciones, probabilidades de transicion, recompensas y factor de descuento. La ecuacion de Bellman calcula el valor de cada estado y la mejor accion.
+\end{pregunta}
+
+\begin{pregunta}[2. Que es un SMDP y como se diferencia de un MDP?]
+Un SMDP extiende el MDP al considerar que las acciones toman tiempo variable. Norte/Sur = N(2, 0.2), Este/Oeste = N(3, 0.3). El descuento cambia de $\gamma$ a $\gamma^\tau$, donde $\tau$ es el tiempo muestreado.
+\end{pregunta}
+
+\begin{pregunta}[3. Por que $\gamma^\tau$?]
+Porque si una accion toma mas tiempo, la recompensa futura llega mas tarde y vale menos. $\tau$ grande = descuento grande = la recompensa futura vale menos.
+\end{pregunta}
+
+\begin{pregunta}[4. Que es Q-Learning?]
+Algoritmo libre de modelo. El agente mantiene una tabla Q que estima el valor de cada par (estado, accion). Aprende por experiencia: elige acciones, observa recompensas, actualiza Q con: $Q(s,a) += \alpha \cdot [R + \gamma^\tau \cdot \max Q(s') - Q(s,a)]$.
+\end{pregunta}
+
+\begin{pregunta}[5. Que es alpha?]
+Tasa de aprendizaje. $\alpha = 0.10$ = ajusta 10\% cada vez. Hace el aprendizaje gradual y estable — no borra todo lo que aprendio antes por una experiencia rara.
+\end{pregunta}
+
+\begin{pregunta}[6. Que es epsilon-greedy?]
+Estrategia de exploracion vs explotacion. Con probabilidad $\epsilon$, el agente elige accion aleatoria (explorar). Con probabilidad $1-\epsilon$, elige la mejor conocida (explotar).
+\end{pregunta}
+
+\begin{pregunta}[7. Por que Q-Learning es ``libre de modelo''?]
+No necesita conocer $P(s'|s,a)$ ni $R(s,a)$. Solo necesita interactuar con el entorno y observar que pasa. MDP necesita modelo completo; Q-Learning solo experiencia.
+\end{pregunta}
+
+\begin{pregunta}[8. Cuantos episodios para converger?]
+$\sim$1500--2000 episodios. La recompensa promedio sube de $-17$ (al inicio) a $+1$ (cuando converge).
+\end{pregunta}
+
+\begin{pregunta}[9. Por que los valores SMDP $<$ MDP?]
+Porque el tiempo extra en E/O (3s vs 1s) hace que $\gamma^\tau$ sea menor que $\gamma$. Descuento mas agresivo = valores menores.
+\end{pregunta}
+
+\begin{pregunta}[10. Por que inicio aleatorio?]
+Para que funcione desde cualquier estado. Q-Learning necesita explorar desde distintos puntos para llenar bien la tabla Q.
+\end{pregunta}
+
+\newpage
+
+% ====================================================================
+\section{Rubricas de Evaluacion}
+% ====================================================================
+
+\subsection{Proyecto 2 (100 puntos)}
+
+\begin{center}
+\begin{tabular}{l c l}
+\toprule
+\rowcolor{tabheader}
+Criterio & Pts & Que necesitas \\
+\midrule
+Simulacion grafica & 20 & Pygame, mapa 2D, robot, meta, muros \\
+MDP clasico & 30 & Value Iteration, $\gamma=0.97$, P=90\%, 4 acciones \\
+SMDP & 30 & $\gamma^\tau$, N(2,0.2), N(3,0.3), 90\% exito \\
+Defensa oral & 20 & Explicar diferencia MDP/SMDP, dominar codigo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Proyecto 3 (100 puntos)}
+
+\begin{center}
+\begin{tabular}{l c l}
+\toprule
+\rowcolor{tabheader}
+Criterio & Pts & Que necesitas \\
+\midrule
+Simulacion grafica & 20 & Pygame, mapa 2D, convergencia visible \\
+Q-Learning SMDP & 40 & Tabla Q, $\alpha=0.10$, $\gamma^\tau$, epsilon-greedy \\
+Modelado estocastico & 20 & 90\% exito, N(2,0.2), N(3,0.3) \\
+Defensa oral & 20 & Explicar Q-Learning vs MDP, dominar codigo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\newpage
+
+% ====================================================================
+\section{Parametros y Controles}
+% ====================================================================
+
+\subsection{Sliders (ajustables en vivo)}
+
+\begin{center}
+\begin{tabular}{l c c l}
+\toprule
+\rowcolor{tabheader}
+Slider & Proy 2 & Proy 3 & Que hace \\
+\midrule
+Gamma & Si & Si & Factor de descuento (0.5 a 0.99) \\
+Alpha & No & Si & Tasa de aprendizaje (0.01 a 0.50) \\
+Epsilon & No & Si & Exploracion (0.01 a 1.0) \\
+Velocidad & Si & Si & Ms entre pasos (100 a 800) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Controles Proyecto 2}
+
+\begin{tabular}{ll}
+\textbf{1} o boton MDP & Cambia a modo MDP clasico \\
+\textbf{2} o boton SMDP & Cambia a modo SMDP \\
+\textbf{ESPACIO} & Pausar / Reanudar \\
+\textbf{R} o boton Reset & Reiniciar \\
+\end{tabular}
+
+\subsection{Controles Proyecto 3}
+
+\begin{tabular}{ll}
+\textbf{ENTER} o boton Entrenar & 500 episodios \\
+\textbf{T} o boton Auto & Hasta convergencia \\
+\textbf{A} o boton Animar & Ver robot navegar \\
+\textbf{R} o boton Reset & Reiniciar todo \\
+\end{tabular}
+
+\subsection{Como correr}
+
+\begin{lstlisting}
+pip install pygame numpy
+cd C:\Projects\robotica
+python proyecto2.py
+python proyecto3.py
+\end{lstlisting}
+
+% ====================================================================
+% APENDICE: Formulas rapidas
+% ====================================================================
+
+\newpage
+\section{Apéndice: Formulas Rapidas}
+
+\begin{center}
+\begin{tabular}{>{\bfseries}l l}
+\toprule
+\rowcolor{tabheader}
+Concepto & Formula \\
+\midrule
+Bellman (MDP) & $V(s) = \max_a [R + \gamma \cdot V(s')]$ \\
+Bellman (SMDP) & $V(s) = \max_a [R + \mathbb{E}[\gamma^\tau] \cdot V(s')]$ \\
+Q-Learning & $Q(s,a) += \alpha [R + \gamma^\tau \max Q(s') - Q(s,a)]$ \\
+Descuento temporal & $\gamma^\tau = 0.97^\tau$ \\
+Transicion (90\%) & $0.9 \cdot V(s') + 0.1 \cdot V(s)$ \\
+Recompensa & $R = -1$ (paso), $R = +10$ (meta) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
