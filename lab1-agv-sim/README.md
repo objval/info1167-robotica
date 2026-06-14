@@ -93,7 +93,7 @@ Despues de simular:
 - `src/agv_sim/visualizador.py` - exportador de imagen matplotlib
 - `src/agv_sim/animacion_vpython.py` - animador 3D Visual Python
 - `tests/` - verificacion automatica
-- `docs/assets/` - PDF original del lab + texto extraido
+- `docs/` - Documentacion completa del lab
 
 ## Puntos para la defensa
 
