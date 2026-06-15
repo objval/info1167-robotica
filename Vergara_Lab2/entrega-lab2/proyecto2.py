@@ -1,3 +1,5 @@
+
+
 import pygame, sys, random
 import numpy as np
 from mapa import GRID, ROWS, COLS, ACTIONS, get_goal, get_states, move, get_random_start
@@ -348,3 +350,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+

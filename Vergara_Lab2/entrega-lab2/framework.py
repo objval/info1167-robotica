@@ -1,3 +1,5 @@
+
+
 import pygame, sys, random, numpy as np
 
 from mapa import GRID, ROWS, COLS, ACTIONS, get_goal, get_states, move, get_random_start

@@ -1,5 +1,3 @@
-
-
 import pygame, sys, random, numpy as np
 
 from mapa import GRID, ROWS, COLS, ACTIONS, get_goal, get_states, move, get_random_start
@@ -403,4 +401,3 @@ def dibujar_grafico(sup, x, y, w, h, datos, color=C['barra_fg']):
     if len(puntos) > 1:
 
         pygame.draw.lines(sup, color, False, puntos, 2)
-

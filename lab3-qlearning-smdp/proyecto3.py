@@ -1,5 +1,3 @@
-
-
 import pygame, sys, random
 import numpy as np
 from collections import defaultdict
@@ -415,4 +413,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-

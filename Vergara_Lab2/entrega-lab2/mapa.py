@@ -1,3 +1,5 @@
+
+
 ROWS = 6
 
 COLS = 7
@@ -155,3 +157,4 @@ if __name__ == "__main__":
     print(f"Meta: {goal}")
 
     print(f"Inicio: {START}")
+
