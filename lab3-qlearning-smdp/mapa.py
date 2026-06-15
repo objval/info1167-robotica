@@ -9,16 +9,13 @@ MAP_STR = [
     ". . . M . . .",
 ]
 
-
 def parse_map():
     grid = []
     for row_str in MAP_STR:
         grid.append(row_str.split())
     return grid
 
-
 GRID = parse_map()
-
 
 def get_states():
     states = []
@@ -28,14 +25,12 @@ def get_states():
                 states.append((r, c))
     return states
 
-
 def get_goal():
     for r in range(ROWS):
         for c in range(COLS):
             if GRID[r][c] == "M":
                 return (r, c)
     return None
-
 
 ACTIONS = ["Norte", "Sur", "Este", "Oeste"]
 ACTION_DELTAS = {
@@ -52,20 +47,16 @@ LATERAL_ACTIONS = {
 }
 import random as _rnd
 
-
 def get_random_start():
     non_goal = [s for s in get_states() if s != get_goal()]
     return _rnd.choice(non_goal)
 
-
 START = (0, 1)
-
 
 def is_valid(r, c):
     if r < 0 or r >= ROWS or c < 0 or c >= COLS:
         return False
     return GRID[r][c] in ("S", "M")
-
 
 def move(state, action):
     r, c = state
@@ -74,7 +65,6 @@ def move(state, action):
     if is_valid(nr, nc):
         return (nr, nc)
     return state
-
 
 def get_neighbors(state):
     r, c = state
@@ -85,14 +75,12 @@ def get_neighbors(state):
             neighbors.append((nr, nc))
     return neighbors
 
-
 def print_grid():
     print("\nMapa del Robot:")
     print("  " + " ".join(str(c) for c in range(COLS)))
     for r in range(ROWS):
         print(f"{r} " + " ".join(GRID[r]))
     print()
-
 
 if __name__ == "__main__":
     print_grid()

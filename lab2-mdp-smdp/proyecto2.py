@@ -3,7 +3,6 @@ import numpy as np
 from mapa import GRID, ROWS, COLS, ACTIONS, get_goal, get_states, move, get_random_start
 from framework import *
 
-
 def calcular_politica(gamma, modo="MDP"):
     estados = get_states()
     meta = get_goal()
@@ -67,7 +66,6 @@ def calcular_politica(gamma, modo="MDP"):
                 bv, ba = val, acc
         pi[s] = ba
     return V, pi
-
 
 def main():
     pygame.init()
@@ -239,7 +237,6 @@ def main():
         pygame.display.flip()
     pygame.quit()
     sys.exit()
-
 
 if __name__ == "__main__":
     main()

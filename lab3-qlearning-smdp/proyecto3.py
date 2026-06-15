@@ -4,7 +4,6 @@ from collections import defaultdict
 from mapa import GRID, ROWS, COLS, ACTIONS, get_goal, get_states, move, get_random_start
 from framework import *
 
-
 class AgenteQLearning:
     def __init__(self):
         self.q = defaultdict(float)
@@ -71,7 +70,6 @@ class AgenteQLearning:
 
     def promedio(self, n=30):
         return np.mean(self.recompensas[-n:]) if self.recompensas else 0
-
 
 def main():
     pygame.init()
@@ -279,7 +277,6 @@ def main():
         pygame.display.flip()
     pygame.quit()
     sys.exit()
-
 
 if __name__ == "__main__":
     main()

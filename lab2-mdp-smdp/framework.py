@@ -39,7 +39,6 @@ C = {
     "btn_active": (70, 80, 120),
 }
 
-
 class Slider:
     def __init__(self, x, y, w, h, min_val, max_val, valor_ini, label, fmt="{:.2f}"):
         self.rect = pygame.Rect(x, y, w, h)
@@ -82,7 +81,6 @@ class Slider:
         knob_rect = pygame.Rect(knob_x - 5, self.rect.y - 3, 10, self.rect.h + 6)
         pygame.draw.rect(surf, C["slider_knob"], knob_rect, border_radius=4)
 
-
 class Boton:
     def __init__(self, x, y, w, h, texto, accion=None):
         self.rect = pygame.Rect(x, y, w, h)
@@ -111,7 +109,6 @@ class Boton:
             ),
         )
 
-
 class Toggle:
     def __init__(self, x, y, label, valor_ini=True):
         self.x = x
@@ -132,12 +129,10 @@ class Toggle:
         knob_x = self.rect.x + (20 if self.activo else 4)
         pygame.draw.circle(surf, (220, 220, 230), (knob_x, self.rect.y + 9), 6)
 
-
 def coords_pixel(fila, col):
     x = GAP + col * (CELDA + GAP)
     y = MARGEN_SUP + GAP + fila * (CELDA + GAP)
     return x, y
-
 
 def dibujar_flecha(sup, fila, col, accion):
     cx, cy = coords_pixel(fila, col)
@@ -152,7 +147,6 @@ def dibujar_flecha(sup, fila, col, accion):
     }
     if accion in formas:
         pygame.draw.polygon(sup, C["flecha"], formas[accion])
-
 
 def dibujar_grilla(
     sup,
@@ -231,16 +225,13 @@ def dibujar_grilla(
         pygame.draw.circle(sup, (255, 255, 255), (cx - 8, cy - 5), 4)
         pygame.draw.circle(sup, (255, 255, 255), (cx + 8, cy - 5), 4)
 
-
 def dibujar_header(sup, titulo):
     f = pygame.font.SysFont("consolas", 18, bold=True)
     sup.blit(f.render(titulo, True, C["texto"]), (8, 14))
 
-
 def dibujar_footer(sup, linea):
     f = pygame.font.SysFont("consolas", 11)
     sup.blit(f.render(linea, True, C["dim"]), (8, ALTO - MARGEN_INF + 8))
-
 
 def dibujar_grafico(sup, x, y, w, h, datos, color=C["barra_fg"]):
     pygame.draw.rect(sup, C["barra_bg"], (x, y, w, h), border_radius=3)
